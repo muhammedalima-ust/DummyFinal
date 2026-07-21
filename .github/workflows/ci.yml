@@ -52,7 +52,7 @@ jobs:
       - name: Create Playwright Secrets
         run: |
           cat > secrets.local.env << 'EOF'
-          USERNAME=${{ secrets.VICTOR_PASSWORD }}
+          VICTOR_PASSWORD=${{ secrets.VICTOR_PASSWORD }}
           EOF
 
       - name: Run Playwright Tests
@@ -113,7 +113,7 @@ jobs:
       - name: Create API Secrets
         run: |
           cat > secrets.local.properties << 'EOF'
-          username=${{ secrets.VICTOR_PASSWORD }}
+          VICTOR_PASSWORD=${{ secrets.VICTOR_PASSWORD }}
           EOF
 
       - name: Run API Tests
