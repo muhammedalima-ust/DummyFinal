@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report
-          path: PlaywrightTests/playwright-report/
+          path: UiTest/playwright-report/
           retention-days: 14
 
       - name: Upload Playwright Test Results
@@ -95,7 +95,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: "21"
+          java-version: "22"
           cache: maven
 
       # ------------------------------------------
@@ -124,7 +124,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: api-test-results
-          path: APITesting/target/surefire-reports/
+          path: apitesting/target/surefire-reports/
           retention-days: 14
 
       - name: Upload Allure Results
