@@ -1,0 +1,3 @@
+[INFO - 08:19:43] Test Started
+[INFO - 08:19:45] The User Logined {"username":"victor@tripstack.test","password":"SENSITIVEDATA"}
+[INFO - 08:19:45] Test passed

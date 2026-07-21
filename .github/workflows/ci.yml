@@ -1,0 +1,136 @@
+name: Test Automation CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+
+  # ==========================================
+  # Playwright UI Tests
+  # ==========================================
+  playwright-tests:
+    name: Playwright UI Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: UiTest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: UiTest/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      # ------------------------------------------
+      # Create Playwright .env
+      # ------------------------------------------
+      - name: Create Playwright .env
+        run: |
+          cat > .env << 'EOF'
+          BASE_URL=${{ secrets.BASE_URL }}
+          EOF
+
+      # ------------------------------------------
+      # Create Playwright secrets.local.env
+      # ------------------------------------------
+      - name: Create Playwright Secrets
+        run: |
+          cat > secrets.local.env << 'EOF'
+          USERNAME=${{ secrets.VICTOR_PASSWORD }}
+          EOF
+
+      - name: Run Playwright Tests
+        run: npx playwright test
+
+      - name: Upload Playwright Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: PlaywrightTests/playwright-report/
+          retention-days: 14
+
+      - name: Upload Playwright Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results
+          path: PlaywrightTests/test-results/
+          retention-days: 14
+
+
+  # ==========================================
+  # API Tests
+  # ==========================================
+  api-tests:
+    name: API Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        working-directory: apitesting
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      # ------------------------------------------
+      # Create API .env
+      # ------------------------------------------
+      - name: Create API .env
+        run: |
+          cat > .env << 'EOF'
+          BASE_URL=${{ secrets.API_URL }}
+          EOF
+
+      # ------------------------------------------
+      # Create API secrets.local.properties
+      # ------------------------------------------
+      - name: Create API Secrets
+        run: |
+          cat > secrets.local.properties << 'EOF'
+          username=${{ secrets.VICTOR_PASSWORD }}
+          EOF
+
+      - name: Run API Tests
+        run: mvn clean test
+
+      - name: Upload Surefire Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: APITesting/target/surefire-reports/
+          retention-days: 14
+
+      - name: Upload Allure Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-allure-results
+          path: APITesting/target/allure-results/
+          retention-days: 14
